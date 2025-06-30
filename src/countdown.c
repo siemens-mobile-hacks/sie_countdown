@@ -73,7 +73,7 @@ int SavePDFile(const COUNTDOWN *countdown, uint64_t end_time) {
     uint32_t err;
     const char *path = "1:\\system\\countdown.pd";
 
-    int fp = sys_open(path, A_WriteOnly + A_Truncate + A_Create + A_TXT, P_WRITE, &err);
+    int fp = sys_open(path, A_WriteOnly | A_Truncate | A_Create | A_TXT, P_WRITE, &err);
     if (fp != -1) {
         size_t len;
         char line[256];

@@ -33,25 +33,21 @@ static void OnRedraw(GUI *gui) {
     if (menu) {
         menu->methods->onRedraw(menu);
     }
-    WIDGET *input = GetDataOfItemByID(gui, 4);
-    for (int i = 0; i < 10; i++) {
-        WIDGET *widget = GetDataOfItemByID(input, i);
-        if (widget) {
-            widget->methods->onRedraw(widget);
-        }
-    }
+    WIDGET *input = GetDataOfItemByID(GetDataOfItemByID(gui, 4), 4);
+    input->methods->onRedraw(input);
+
     INPUTDIA_DESC *desc = gui->definition;
     if (desc->global_hook_proc) {
         desc->global_hook_proc(gui, TI_CMD_REDRAW);
     }
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 3; i++) {
         WIDGET *widget = GetDataOfItemByID(gui, i);
         if (widget) {
             widget->methods->onRedraw(widget);
         }
     }
     int y = input->canvas->y + 46;
-    DrawLine(0, y, ScreenW() - 1, y, 0, GetPaletteAdrByColorIndex(PC_FOREGROUND));
+    DrawLine(input->canvas->x, y, input->canvas->x2, y, 0, GetPaletteAdrByColorIndex(PC_FOREGROUND));
 }
 
 #define IsFocusEdit(gui) (EDIT_GetFocus(gui) == 1)
@@ -209,8 +205,10 @@ static const MENU_DESC MENU_D = {
 };
 
 int CreateUI(COUNTDOWN *countdown) {
+    RECT *main_area_rect = GetMainAreaRECT();
+
     memcpy(&(HEADER_D.rc), GetHeaderRECT(), sizeof(RECT));
-    memcpy(&(INPUTDIA_D.rc), GetMainAreaRECT(), sizeof(RECT));
+    memcpy(&(INPUTDIA_D.rc), main_area_rect, sizeof(RECT));
 
     UI_DATA *data = malloc(sizeof(UI_DATA));
     zeromem(data, sizeof(UI_DATA));
@@ -246,7 +244,7 @@ int CreateUI(COUNTDOWN *countdown) {
     data->menu = GetMenuGUI(ma, mf);
     SetMenuToGUI(data->menu, &MENU_D);
     MenuSetUserPointer(data->menu, data);
-    SetMenuRect(data->menu, 0, YDISP + HeaderH() + 58, ScreenW() - 1, ScreenH() - SoftkeyH() - 1);
+    SetMenuRect(data->menu, main_area_rect->x, main_area_rect->y + 58, main_area_rect->x2, main_area_rect->y2);
     AttachWidget(gui, data->menu, MENU_WIDGET_ID, ma);
 
     memcpy(&METHODS, gui->methods, sizeof(GUI_METHODS));
